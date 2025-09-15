@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Bangbus</title>
+	<style>
+		body, html {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+		
+		#introImage {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			z-index: 9999;
+		}
+
+		#videoBg {
+			width: 100%;
+			height: 100vh;
+			object-fit: cover;
+			position: fixed;
+			top: 0;
+			left: 0;
+			z-index: -1;
+			transition: filter 0.5s;
+		}
+
+		#guide {
+			position: fixed;
+			bottom: 30px;
+			right: 30px;
+			width: 250px;
+			opacity: 1.0;
+		}
+
+		body {
+			cursor: none;
+		}
+
+		#custom-cursor {
+			position: fixed;
+			top: 0;
+			left: 0;
+			pointer-events: none;
+			transform: translate(-50%, -50%);
+			width: 120px;
+		}
+
+		#special-area {
+			position: fixed;
+			left: 200px;
+			bottom: 0;
+			width: 600px;
+			height: 300px;
+			z-index: 10;
+		}
+	</style>
+</head>
+
+<body>
+	<img id="introImage" src="./Frame 2087326977.png">
+	
+	<video id="videoBg" muted loop>
+		<source src="./bangbus1204.mp4" type="video/mp4">
+	</video>
+
+	<audio id="bgMusic" src="./Bang Bus - 250.mp3"></audio>
+
+	<img id="guide" src="./231298334.png" alt="방향키 안내">
+	
+	<div id="special-area"></div>
+	<img id="custom-cursor" src="./Group 2085666170.png" alt="커스텀 커서">
+
+	<script>
+		const bgMusic = document.getElementById("bgMusic");
+		const videoBg = document.getElementById("videoBg");
+		const introImage = document.getElementById("introImage");
+		const customCursor = document.getElementById("custom-cursor");
+		const specialArea = document.getElementById("special-area");
+
+		let normalSpeed = 1.0;
+		let originalVideoTime = 0;
+
+		// 페이지 로드 시 음악과 영상 일시 정지 (인트로 화면)
+		window.addEventListener('load', function() {
+			bgMusic.pause();
+			videoBg.pause();
+		});
+
+		document.addEventListener("keydown", function(event) {
+			if (introImage.style.display !== 'none') {
+				// 인트로 화면일 때: 스페이스바를 누르면 시작
+				if (event.code === "Space") {
+					event.preventDefault();
+					introImage.style.display = 'none';
+					bgMusic.play();
+					videoBg.play();
+				}
+			} else {
+				// 인트로 화면이 아닐 때의 기존 기능
+				if (event.key === "ArrowUp") {
+					bgMusic.playbackRate = 2.0;
+					videoBg.playbackRate = 2.0;
+				} else if (event.key === "ArrowDown") {
+					bgMusic.playbackRate = 0.25;
+					videoBg.playbackRate = 0.25;
+				} else if (event.code === "Space") {
+					event.preventDefault();
+					if (bgMusic.paused) {
+						bgMusic.play();
+					} else {
+						bgMusic.pause();
+					}
+				} else if (event.key === "Escape") {
+					// ESC를 누르면 인트로 화면으로 돌아가기
+					introImage.style.display = 'block';
+					bgMusic.pause();
+					videoBg.pause();
+					// 영상과 음악을 처음으로 되돌립니다.
+					videoBg.src = "bangbus1204.mp4";
+					bgMusic.currentTime = 0;
+				}
+			}
+		});
+
+		document.addEventListener("keyup", function(event) {
+			if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+				bgMusic.playbackRate = normalSpeed;
+				videoBg.playbackRate = normalSpeed;
+			}
+		});
+
+		document.addEventListener("mousemove", function(e) {
+			customCursor.style.left = e.clientX + "px";
+			customCursor.style.top = e.clientY + "px";
+		});
+
+		specialArea.addEventListener("mouseenter", function() {
+			customCursor.src = "./Group 2085666177.png";
+		});
+
+		specialArea.addEventListener("mouseleave", function() {
+			customCursor.src = "./Group 2085666170.png";
+		});
+
+		
+		specialArea.addEventListener("click", function() {
+			originalVideoTime = videoBg.currentTime;
+
+			bgMusic.currentTime = 125;
+			const currentVideoTime = videoBg.currentTime;
+			
+			videoBg.src = "bangbus1023498.mp4";
+			
+			videoBg.addEventListener("loadeddata", function() {
+				videoBg.currentTime = currentVideoTime;
+				videoBg.play();
+			}, { once: true });
+		});
+
+		document.addEventListener("click", function(event) {
+			if (!specialArea.contains(event.target)) {
+				if (videoBg.src.endsWith("bangbus1204.mp4")) {
+					return;
+				}
+				videoBg.src = "bangbus1204.mp4";
+				
+				videoBg.addEventListener("loadeddata", function() {
+                videoBg.currentTime = originalVideoTime;
+                videoBg.play();
+            }, { once: true });
+			}
+		});
+	</script>
+</body>
+</html>
